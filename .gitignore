@@ -48,3 +48,5 @@ example/out
 example/next-env.d.ts
 example/node_modules
 example/yarn.lock
+
+.scannerwork
