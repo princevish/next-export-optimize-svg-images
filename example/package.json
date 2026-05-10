@@ -1,0 +1,19 @@
+{
+  "name": "example-test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next build && next-export-optimize-svg-images",
+    "optimize": "next-export-optimize-svg-images"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "next-export-optimize-svg-images": "file:.."
+  }
+}
