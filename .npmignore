@@ -1,0 +1,23 @@
+# Source code
+src/
+tsconfig.json
+
+# Development
+example/
+.next/
+node_modules/
+package-lock.json
+.git/
+.gitignore
+
+# Configs
+tsup.config.ts
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other
+.DS_Store
