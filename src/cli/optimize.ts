@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 
 import sharp from "sharp";
 import { optimize as optimizeSvg } from "svgo";
@@ -125,13 +125,13 @@ class ScannerService {
     
     console.log(`📂 Scanning directories: ${sourceDirs.join(", ")}`);
 
-    const contentFiles = (await Promise.all(contentDirs.map(p => existsSync(p) ? glob(p.replace(/\\/g, "/") + "/**/*.{json,md}", { absolute: true }) : Promise.resolve([])))).flat();
-    const srcFiles = (await Promise.all(sourceDirs.map(p => glob(p.replace(/\\/g, "/") + "/**/*.{ts,tsx,scss,css,js,jsx}", { absolute: true })))).flat();
+    const contentFiles = (await Promise.all(contentDirs.map(p => existsSync(p) ? glob(p.replaceAll("\\", "/") + "/**/*.{json,md}", { absolute: true }) : Promise.resolve([])))).flat();
+    const srcFiles = (await Promise.all(sourceDirs.map(p => glob(p.replaceAll("\\", "/") + "/**/*.{ts,tsx,scss,css,js,jsx}", { absolute: true })))).flat();
     
     const basenameToRelPath = await this.buildImageLookup();
 
-    const inputFolder = this.config.inputImageFolder;
-    const cmsRegex = new RegExp(`\\/${inputFolder.replace(/\//g, "\\/")}\\/([^ \\s"',)\`]+)`, "g");
+    const inputFolderConfig = this.config.inputImageFolder;
+    const cmsRegex = new RegExp(`\\/${inputFolderConfig.replaceAll("/", "\\/")}\\/([^ \\s"',)\`]+)`, "g");
     console.log(`🔍 Using CMS Regex: ${cmsRegex.source}`);
     const sourceRegex = /(?:['"]|url\s*\()(?:\/?(?:@|src)|(?:\.\.\/)+|(?:\.\/)+)?\/?assets\/images\/([^'"\)\s?#]+)/g;
     const potentialFilenameRegex = /[a-zA-Z0-9_.-]+\.(?:svg|png|jpg|jpeg|gif|webp|avif)/gi;
@@ -197,7 +197,7 @@ class ProcessorService {
 
   getOutputBasename(kind: "cms" | "source", relPath: string): string {
     const ext = path.extname(relPath);
-    const name = relPath.slice(0, relPath.length - ext.length).replace(/[\/\\]/g, "_");
+    const name = relPath.slice(0, relPath.length - ext.length).replaceAll(/[\/\\]/g, "_");
     const hash = FileUtils.createHash(`${kind}:${relPath}`).substring(0, 8);
     return `${name}-${hash}`;
   }
@@ -513,8 +513,8 @@ class OptimizationEngine {
       });
     });
     refs.cms.forEach(p => {
-      const inputFolder = this.config.inputImageFolder;
-      const rel = p.replace(new RegExp(`^\\/${inputFolder.replace(/\//g, "\\/")}\\/`), "");
+      const folder = this.config.inputImageFolder;
+      const rel = p.replaceAll(new RegExp(`^\\/${folder.replaceAll("/", "\\/")}\\/`, "g"), "");
       const abs = path.join(cmsMediaPath, rel);
       if (existsSync(abs)) {
         list.push({
